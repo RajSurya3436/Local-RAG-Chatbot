@@ -3,9 +3,7 @@ from sentence_transformers import SentenceTransformer
 from vectorstore import collection
 import uuid
 
-# Load a small, fast embedding model
-# "all-MiniLM-L6-v2" is only ~80MB and works great on 8GB RAM
-# It converts text → a list of 384 numbers (a vector)
+
 embedder = SentenceTransformer("all-MiniLM-L6-v2")
 
 def read_file(filepath: str) -> str:
@@ -21,15 +19,7 @@ def read_file(filepath: str) -> str:
             return f.read()
 
 def chunk_text(text: str, chunk_size=500, overlap=50) -> list[str]:
-    """
-    Split text into overlapping chunks.
     
-    Why overlap? Imagine a sentence split across two chunks:
-    Chunk 1: "...the answer is"
-    Chunk 2: "42, which means..."
-    Without overlap, neither chunk makes sense alone.
-    With overlap, each chunk carries a bit of the previous one.
-    """
     chunks = []
     start = 0
     while start < len(text):
@@ -39,7 +29,6 @@ def chunk_text(text: str, chunk_size=500, overlap=50) -> list[str]:
     return chunks
 
 def ingest_document(filepath: str):
-    """Full pipeline: read → chunk → embed → store"""
     print(f" Reading file: {filepath}")
     text = read_file(filepath)
 
@@ -53,7 +42,7 @@ def ingest_document(filepath: str):
     collection.add(
         documents=chunks,
         embeddings=embeddings,
-        ids=[str(uuid.uuid4()) for _ in chunks]  # unique ID for each chunk
+        ids=[str(uuid.uuid4()) for _ in chunks] 
     )
     print(f" Done! Ingested {len(chunks)} chunks.")
     return len(chunks)
